@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash 
 # 0. CONSTANTS
 # 0.1 Generic sqlite command
-sqlite="/data/data/com.termux/files/usr/bin/sqlite3 /data/data/com.sony.capas.contentmanager/databases/document_database.db"
+sqlite="/data/data/com.termux/files/usr/bin/sqlite3 /data/data/com.sony.capas.dataaccessprovider/databases/document_database_v2.db"
 # 0.2 Base Path
 BASEPATH=/storage/emulated/legacy/Android/data/com.dropbox.android/files/u88291057/scratch/DigitalPaper/SonyApp
 # 0.3 UNIX Utilities
@@ -47,13 +47,13 @@ FILELIST="$(cd $BASEPATH; find . -name "*.pdf")"
 OIFS=$IFS; IFS=$'\n'; FILELIST=($FILELIST); IFS=$OIFS
 
 # 3. Delete the previous cached structure and reset auto_increment indexes
-$sqlite "DELETE FROM folders WHERE folder_id LIKE 'dropbox_%' OR document_id LIKE 'dropbox_%'"
-LASTID=$($sqlite "SELECT MAX(_id) FROM folders") 
-$sqlite "UPDATE SQLITE_SEQUENCE SET SEQ=$(( LASTID + 1 )) WHERE NAME='folders';"
+$sqlite "DELETE FROM folder WHERE folder_id LIKE 'dropbox_%' OR document_id LIKE 'dropbox_%'"
+LASTID=$($sqlite "SELECT MAX(_id) FROM folder") 
+$sqlite "UPDATE SQLITE_SEQUENCE SET SEQ=$(( LASTID + 1 )) WHERE NAME='folder';"
 
-$sqlite "DELETE FROM files WHERE file_id LIKE 'dropbox_%'"
-LASTID=$($sqlite "SELECT MAX(_id) FROM files") 
-$sqlite "UPDATE SQLITE_SEQUENCE SET SEQ=$(( LASTID + 1 )) WHERE NAME='files';"
+$sqlite "DELETE FROM file WHERE file_id LIKE 'dropbox_%'"
+LASTID=$($sqlite "SELECT MAX(_id) FROM file") 
+$sqlite "UPDATE SQLITE_SEQUENCE SET SEQ=$(( LASTID + 1 )) WHERE NAME='file';"
 
 $sqlite "DELETE FROM documents WHERE document_id LIKE 'dropbox_%'"
 LASTID=$($sqlite "SELECT MAX(_id) FROM documents") 
@@ -64,7 +64,7 @@ $sqlite "DELETE FROM page_cache WHERE document_id LIKE 'dropbox_%'"
 # 4. DIRECTORIES
 
 # 4.0 Insert the root dropbox folder
-$sqlite "INSERT INTO folders 
+$sqlite "INSERT INTO folder 
 (item_type,folder_id,folder_name,folder_path,parent_folder_id)
 VALUES 
 (0,'dropbox_0','Dropbox','Document/Dropbox/','root')
@@ -73,7 +73,7 @@ VALUES
 for ((i=0;i<${#DIRLIST[@]};i++));
 do
      dir="${DIRLIST[$i]}"
-     LASTID=$($sqlite "SELECT MAX(_id) FROM folders")
+     LASTID=$($sqlite "SELECT MAX(_id) FROM folder")
      NEWID=$(( LASTID + 1 ))
      NAME="${dir##*/}"
      if [[ "$NAME" == "." ]]; then continue; fi
@@ -86,11 +86,11 @@ do
      then
         PARENTSUBDIRID="dropbox_0"
      else
-     	PARENTSUBDIRID=$($sqlite "SELECT folder_id FROM folders WHERE folder_path = '${PARENTSUBDIR//\'/\'\'}' AND item_type = 0;")
+     	PARENTSUBDIRID=$($sqlite "SELECT folder_id FROM folder WHERE folder_path = '${PARENTSUBDIR//\'/\'\'}' AND item_type = 0;")
      fi
      FOLDERPATH="Document/Dropbox${dir#.}/"
      # SQL insert instruction
-     $sqlite "INSERT INTO folders (item_type,folder_id, folder_name, folder_path, parent_folder_id) 
+     $sqlite "INSERT INTO folder (item_type,folder_id, folder_name, folder_path, parent_folder_id) 
 VALUES (0,'dropbox_folder_$NEWID', '$NAME', '$FOLDERPATH','$PARENTSUBDIRID')"
 done
  
@@ -100,7 +100,7 @@ done
 for ((i=0;i<${#FILELIST[@]};i++));
 do
      file="${FILELIST[$i]}"
-     LASTID=$($sqlite "SELECT MAX(_id) FROM files")
+     LASTID=$($sqlite "SELECT MAX(_id) FROM file")
      NAME="${file##*/}"
      NEWID=$(( LASTID + 1 ))
      
@@ -120,7 +120,7 @@ do
      	FILETYPE=0
      fi
 
-     $sqlite "INSERT INTO files 
+     $sqlite "INSERT INTO file 
 (file_id,
 filename,
 file_path,
@@ -150,8 +150,8 @@ do
      # 5.3 Filter out the filename 
      NAME="${file##*/}"
 
-     # 5.4 Figure out id of the current file (in table: files)
-    FILEID=$($sqlite "SELECT file_id FROM files WHERE file_path = '$BASEPATH/${file/\'/\'\'}'")
+     # 5.4 Figure out id of the current file (in table: file)
+    FILEID=$($sqlite "SELECT file_id FROM file WHERE file_path = '$BASEPATH/${file/\'/\'\'}'")
 
     # 5.5 Final SQL statement (to create a new document)
     $sqlite "INSERT INTO documents 
@@ -161,11 +161,11 @@ VALUES
 "
 done
 
-# 5.2 In the "folders" table
+# 5.2 In the "folder" table
 for ((i=0;i<${#FILELIST[@]};i++));
 do
      file="${FILELIST[$i]}"
-     LASTID=$($sqlite "SELECT MAX(_id) FROM files")
+     LASTID=$($sqlite "SELECT MAX(_id) FROM file")
      NAME="${file##*/}"
      NEWID=$(( LASTID + 1 ))
      
@@ -177,13 +177,13 @@ do
      then
         PARENTSUBDIRID="dropbox_0"
      else
-     	PARENTSUBDIRID=$($sqlite "SELECT folder_id FROM folders WHERE folder_path = '${PARENTSUBDIR//\'/\'\'}' AND item_type = 0;")
+     	PARENTSUBDIRID=$($sqlite "SELECT folder_id FROM folder WHERE folder_path = '${PARENTSUBDIR//\'/\'\'}' AND item_type = 0;")
      fi
      FOLDERPATH="Document/Dropbox${file#.}"
-     FILEID=$($sqlite "SELECT file_id FROM files WHERE file_path = '$BASEPATH/${file//\'/\'\'}'")
+     FILEID=$($sqlite "SELECT file_id FROM file WHERE file_path = '$BASEPATH/${file//\'/\'\'}'")
      DOCUMENTID=$($sqlite "SELECT document_id FROM documents WHERE last_read_file_id = '$FILEID' ;")
 
-     $sqlite "INSERT INTO folders
+     $sqlite "INSERT INTO folder
 (item_type,
 document_id,
 folder_path,
