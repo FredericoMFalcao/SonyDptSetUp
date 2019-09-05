@@ -1,7 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/bash 
 # 0. CONSTANTS
 # 0.1 Generic sqlite command
-sqlite="/data/data/com.termux/files/usr/bin/sqlite3 /data/data/com.sony.capas.contentmanager/databases/document_database.db"
+sqlite_v1="/data/data/com.termux/files/usr/bin/sqlite3 /data/data/com.sony.capas.contentmanager/databases/document_database.db"
+sqlite_v2="/data/data/com.termux/files/usr/bin/sqlite3 /data/data/com.sony.capas.dataaccessprovider/databases/document_database_v2.db"
+sqlite="$sqlite_v2"
 # 0.2 Base Path
 BASEPATH=/storage/emulated/legacy/Android/data/com.dropbox.android/files/u88291057/scratch/DigitalPaper/SonyApp
 # 0.3 UNIX Utilities
