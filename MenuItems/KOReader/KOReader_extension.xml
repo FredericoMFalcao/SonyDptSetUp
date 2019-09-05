@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Application name="NoteCreator" type="System" version="2">
+    <LauncherEntry name="KOReader" category="Launcher" uri="intent:#Intent;launchFlags=0x10000000;component=org.koreader.launcher/.MainActivity;end" string="STR_ICONMENU_9999" icon="ic_homemenu_koreader.png" order="9"/>
+</Application>
+    
+
+
+
+

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Application name="Firefox" type="System" version="2">
+    <LauncherEntry name="Firefox" category="Launcher" uri="intent:#Intent;launchFlags=0x10000000;component=org.mozilla.firefox/org.mozilla.gecko.BrowserApp;end" string="STR_ICONMENU_1005" icon="ic_homemenu_firefox.png" order="10"/>
+</Application>

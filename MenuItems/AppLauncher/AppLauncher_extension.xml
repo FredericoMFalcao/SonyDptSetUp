@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Application name="AppLauncher" type="System" version="2">
+    <LauncherEntry name="AppLauncher" category="Launcher" uri="intent:#Intent;launchFlags=0x10000000;component=com.simplemobiletools.applauncher/com.simplemobiletools.applauncher.activities.MainActivity;end" string="STR_ICONMENU_1005" icon="ic_homemenu_createnote.png" order="25"/>
+</Application>
