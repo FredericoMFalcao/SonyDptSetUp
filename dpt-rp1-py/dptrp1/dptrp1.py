@@ -75,6 +75,8 @@ class DigitalPaper():
 
         print("Requesting PIN...")
         r = self.session.post(register_pin_url)
+        print(r)
+        sys.exit(1)
         m1 = r.json()
 
         n1 = base64.b64decode(m1['a'])
